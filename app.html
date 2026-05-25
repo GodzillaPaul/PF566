@@ -39,7 +39,7 @@ html, body {
 input { font-family: inherit; }
 
 /* ============ HEADER ============ */
-.header-outer { background: var(--header-grad); color: white; padding: 32px 16px 28px; }
+.header-outer { background: var(--header-grad); color: white; padding: 32px 16px 28px; position: relative; }
 .header { max-width: 880px; margin: 0 auto; display: flex; align-items: center; gap: 32px; justify-content: center; }
 .age-circle {
   flex: 0 0 auto; width: 132px; height: 132px; border-radius: 50%;
@@ -302,6 +302,98 @@ table.illu tr.surv-row td { background: var(--milestone) !important; }
   table.illu td { padding: 7px 6px; }
   .prod-btn { padding: 6px 12px; font-size: 12px; }
 }
+
+/* ── GP 品牌角落（左上角，絕對定位，不改變 header 高度）── */
+.gp-corner {
+  position: absolute;
+  top: 10px; left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+.gp-corner-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+}
+.gp-corner-badge {
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  padding: 4px;
+  background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 6px 18px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.22);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.gp-corner-badge::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.96);
+  z-index: 0;
+}
+.gp-corner-badge::after {
+  content: "";
+  position: absolute;
+  top: -70%; left: -120%;
+  width: 70%; height: 240%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.48), transparent);
+  transform: rotate(24deg);
+  transition: left .7s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+.gp-corner-brand:hover .gp-corner-badge::after { left: 135%; }
+.gp-corner-badge img {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  object-fit: contain; display: block;
+}
+.gp-corner-text small {
+  display: block;
+  color: rgba(255,255,255,.78);
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.gp-corner-text strong {
+  display: block;
+  margin-top: 1px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .01em;
+  text-shadow: 0 1px 10px rgba(255,255,255,.18);
+  white-space: nowrap;
+}
+.gp-corner-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.38);
+  color: rgba(255,255,255,.90);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.gp-corner-back:hover { background: rgba(255,255,255,.26); }
+@media (max-width: 540px) {
+  .gp-corner-text { display: none; }
+  .gp-corner-back span { display: none; }
+  .gp-corner-badge { width: 36px; height: 36px; border-radius: 10px; }
+}
 </style>
 <link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon/icon-32x32.png">
@@ -315,6 +407,23 @@ table.illu tr.surv-row td { background: var(--milestone) !important; }
 <body>
 
 <div class="header-outer">
+  <div class="gp-corner">
+    <a class="gp-corner-brand"
+       href="https://godzillapaul.github.io/Catalog_GodzillaPaul/"
+       aria-label="回到主頁">
+      <div class="gp-corner-badge">
+        <img src="https://godzillapaul.github.io/Catalog_GodzillaPaul/favicon/icon-512x512.png"
+             alt="GodzillaPaul Logo" width="42" height="42">
+      </div>
+      <div class="gp-corner-text">
+        <small>GODZILLAPAUL</small>
+        <strong>商品解方庫</strong>
+      </div>
+    </a>
+    <a class="gp-corner-back"
+       href="https://godzillapaul.github.io/Catalog_GodzillaPaul/"
+       aria-label="返回主頁">← <span>返回</span></a>
+  </div>
   <div class="header">
     <button class="age-circle" id="age-circle-btn" title="點此輸入年齡">
       <div class="age-num is-empty" id="h-age">—</div>
