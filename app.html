@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>PF566 美富優退 — 富邦人壽試算</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #f5f5f7;
+  --paper: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #888a8e;
+  --border: #d8d8dc;
+  /* Default = 男 mint/teal palette (與 PFA 同) */
+  --accent: #2e8b7e;
+  --accent-light: #d8ece7;
+  --accent-mint: #b8ddd2;
+  --accent-row: #e8f4f0;
+  --header-grad: linear-gradient(135deg, #2e8b7e 0%, #4dab9b 100%);
+  --milestone: #d6f1e8;
+  --donut-bg: #e0e0e0;
+}
+body.female {
+  --accent: #c44a7c;
+  --accent-light: #fbe5ee;
+  --accent-mint: #f5b8d0;
+  --accent-row: #fbeff5;
+  --header-grad: linear-gradient(135deg, #c44a7c 0%, #e07faa 100%);
+  --milestone: #f9d6e5;
+}
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--ink);
+  font-family: 'Microsoft JhengHei', 'PingFang TC', 'Heiti TC', 'Noto Sans TC', system-ui, Arial, sans-serif;
+  font-size: 15px; line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+input { font-family: inherit; }
+
+/* ============ HEADER ============ */
+.header-outer { background: var(--header-grad); color: white; padding: 32px 16px 28px; }
+.header { max-width: 880px; margin: 0 auto; display: flex; align-items: center; gap: 32px; justify-content: center; }
+.age-circle {
+  flex: 0 0 auto; width: 132px; height: 132px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); border: 3px solid rgba(255,255,255,0.55);
+  color: white; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font: inherit; padding: 0; transition: all 0.2s;
+}
+.age-circle:hover, .age-circle:active { background: rgba(255,255,255,0.22); transform: scale(0.97); }
+.age-num { font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -1px; font-family: 'SF Pro Display', system-ui, sans-serif; }
+.age-num.is-empty { font-size: 38px; font-weight: 300; opacity: 0.6; }
+.age-label { font-size: 14px; opacity: 0.92; margin-top: 4px; }
+.header-center { flex: 0 1 auto; max-width: 480px; text-align: center; }
+.header-title { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; font-family: system-ui, 'Microsoft JhengHei', sans-serif; }
+.header-subtitle { font-size: 13px; opacity: 0.85; margin-bottom: 10px; }
+.bonus-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+.bonus-pill {
+  border: 1.5px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.12);
+  color: white; padding: 6px 14px; border-radius: 999px;
+  font: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; transition: all 0.15s;
+}
+.bonus-pill:hover { background: rgba(255,255,255,0.22); }
+.bonus-pill .bonus-amt { font-weight: 700; letter-spacing: 0.3px; }
+.bonus-pill.is-disabled { opacity: 0.55; }
+.bonus-pill.is-disabled .bonus-amt { font-weight: 400; }
+.prem-big { font-size: 30px; font-weight: 700; font-family: 'SF Pro Display', system-ui, sans-serif; letter-spacing: 0.5px; }
+.prem-big small { font-size: 14px; opacity: 0.85; font-weight: 400; }
+.prem-unit { font-size: 12px; opacity: 0.85; margin-top: 2px; margin-bottom: 12px; }
+.amount-row { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; background: transparent; }
+.amount-row .amount-label { font-size: 13px; opacity: 0.95; margin-right: 4px; }
+.amt-btn { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.6); background: transparent; color: white; font: inherit; font-size: 18px; line-height: 1; cursor: pointer; padding: 0; }
+.amt-btn:hover { background: rgba(255,255,255,0.15); }
+.amt-display { width: 110px; padding: 6px 10px; border: 1.5px solid rgba(255,255,255,0.6); border-radius: 999px; background: rgba(255,255,255,0.08); color: white; font: inherit; font-weight: 600; font-size: 16px; text-align: center; }
+.amt-display:focus { outline: 2px solid white; }
+.amt-display::placeholder { color: rgba(255,255,255,0.5); }
+.amt-unit { font-size: 13px; opacity: 0.95; }
+
+/* ============ BODY ============ */
+.body-outer { padding: 24px 16px 32px; }
+.body { max-width: 880px; margin: 0 auto; }
+.err-msg {
+  background: #fff7ed; color: #7c2d12;
+  border: 1px solid #fcd9b6; border-left: 4px solid #b54708;
+  padding: 8px 12px; border-radius: 6px;
+  margin-bottom: 12px; font-size: 13px;
+}
+
+/* ctrl row */
+.ctrl-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.ctrl-center { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 240px; }
+.ctrl-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.body-amount-row { color: var(--ink); }
+.body-amount-row .amount-label { font-size: 14px; opacity: 1; color: var(--ink); margin-right: 6px; font-weight: 500; }
+.body-amount-row .amt-btn { width: 30px; height: 30px; border: 1.5px solid var(--accent); background: white; color: var(--accent); }
+.body-amount-row .amt-btn:hover { background: var(--accent-light); }
+.body-amount-row .amt-display { width: 110px; border: 1.5px solid var(--accent-mint); background: white; color: var(--ink); }
+.body-amount-row .amt-display:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+.body-amount-row .amt-display::placeholder { color: var(--muted); }
+.body-amount-row .amt-unit { color: var(--muted); }
+.fx-status { font-size: 11px; color: var(--muted); text-align: right; margin-top: 2px; }
+.fx-status .live { color: var(--accent); font-weight: 600; }
+.fx-status .failed { color: #b54708; font-weight: 600; }
+
+/* Pill toggle */
+.pill-toggle { display: inline-flex; background: var(--accent-light); border-radius: 999px; padding: 4px; }
+.pill-btn { border: 0; background: transparent; padding: 8px 24px; border-radius: 999px; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.pill-btn.active { background: white; color: var(--accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.pill-btn:hover:not(.active) { color: var(--accent); }
+.exrate-inline { width: 50px; padding: 0 4px; margin-left: 4px; border: 0; background: transparent; font: inherit; font-size: 13px; text-align: right; color: var(--accent); font-weight: 700; }
+.exrate-inline:focus { outline: 1px solid var(--accent); border-radius: 3px; }
+.pill-btn:not(.active) .exrate-inline { color: var(--muted); }
+
+/* Mode segmented */
+.mode-row { display: flex; background: var(--accent-light); border-radius: 999px; padding: 5px; margin-bottom: 18px; }
+.mode-btn { flex: 1; border: 0; background: transparent; padding: 11px 8px; border-radius: 999px; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.mode-btn.active { background: white; color: var(--accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+/* Amount input */
+.amount-input-row { margin-bottom: 14px; }
+.amount-input-wrap { display: flex; align-items: center; border: 2px solid var(--accent-mint); border-radius: 10px; background: white; padding: 0; }
+.amount-input-wrap:focus-within { border-color: var(--accent); }
+.amount-text-input { flex: 1; padding: 14px 14px; border: 0; background: transparent; font: inherit; font-size: 24px; font-weight: 600; text-align: center; color: var(--ink); outline: none; }
+.amount-text-unit { font-size: 13px; color: var(--muted); padding: 0 16px; white-space: nowrap; }
+
+/* Quick buttons */
+.quick-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; justify-content: flex-start; }
+.quick-btn { border: 1px solid var(--border); background: white; padding: 7px 18px; border-radius: 999px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; min-width: 60px; font-weight: 500; }
+.quick-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
+.quick-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.quick-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
+
+/* 商品變體 (退休年齡) */
+.prod-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.prod-btn { border: 1px solid var(--border); background: white; padding: 7px 18px; border-radius: 999px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; font-weight: 500; }
+.prod-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
+.prod-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.prod-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+
+.fx-refresh-btn { border: 1px solid var(--border); background: white; padding: 6px 14px; border-radius: 999px; font: inherit; font-size: 12px; color: var(--muted); cursor: pointer; }
+.fx-refresh-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+.summary-pill { background: var(--accent); color: white; border-radius: 999px; padding: 7px 16px; font-size: 13px; margin: 6px 0 14px 0; display: inline-block; font-weight: 600; }
+
+/* ============ INFOGRAPHIC (PFW 獨有對比圖) ============ */
+.info-section { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 18px; }
+.info-header { display: grid; grid-template-columns: 1fr 1fr; background: var(--accent); color: white; }
+.info-header > div { padding: 12px; text-align: center; font-weight: 600; font-size: 14px; }
+.info-header-left { background: var(--accent); }
+.info-header-right { background: rgba(0,0,0,0.15); }
+.info-body { display: grid; grid-template-columns: 1fr 1fr; }
+.info-left, .info-right { padding: 16px; display: flex; gap: 12px; }
+.info-left { background: var(--accent-row); }
+.info-right { background: #f8f8f8; }
+.info-donut-wrap { flex: 0 0 100px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.info-donut { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); font-weight: 700; font-size: 18px; position: relative; }
+.info-donut::before { content: ''; position: absolute; inset: 12px; background: white; border-radius: 50%; }
+.info-donut > * { position: relative; z-index: 1; }
+.info-amt-unit { font-size: 11px; color: var(--muted); }
+.info-amt { font-size: 20px; font-weight: 700; color: var(--accent); }
+.info-right .info-amt { color: var(--muted); }
+.info-col { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.info-years-big { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 4px; line-height: 1; }
+.info-years-big .info-years-unit { font-size: 14px; font-weight: 500; margin-left: 2px; }
+.info-right .info-years-big { color: #999; }
+.info-row-item { font-size: 12px; line-height: 1.45; color: var(--ink); }
+.info-row-item strong { color: var(--accent); font-weight: 700; }
+.info-right .info-row-item strong { color: #555; }
+.info-divider { border-top: 1px dashed var(--border); margin: 6px 0; }
+.info-row-item.muted { color: var(--muted); font-size: 11px; }
+
+/* Retire mode 跨商品比對表 */
+.retire-compare-section { margin-bottom: 18px; }
+.retire-compare-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; background: white; }
+.retire-compare-table thead th { background: var(--accent-light); color: var(--accent); padding: 10px 8px; font-weight: 600; font-size: 12px; text-align: center; white-space: nowrap; }
+.retire-compare-table td { padding: 8px; border-bottom: 1px solid #ececf0; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.retire-compare-table td.txt { text-align: center; color: var(--ink); }
+.retire-compare-table tr.selected td { background: var(--accent-row); font-weight: 700; }
+
+/* 主表格 */
+.tbl-section { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 16px; }
+.tbl-note { padding: 10px 16px; background: white; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; overflow-y: auto; max-height: 70vh; }
+table.illu { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; font-family: system-ui, 'SF Pro Text', 'Microsoft JhengHei', sans-serif; }
+table.illu thead th { background: var(--accent-light); color: var(--accent); padding: 12px 12px; font-weight: 600; font-size: 13px; text-align: center; white-space: nowrap; position: sticky; top: 0; z-index: 5; box-shadow: inset 0 -2px 0 var(--accent-mint); }
+table.illu td { padding: 10px 12px; border-bottom: 1px solid #ececf0; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+table.illu td.txt { text-align: center; color: var(--muted); }
+table.illu tr:nth-child(even) td { background: #fafafa; }
+table.illu tr.surv-row td { background: var(--milestone) !important; }
+.tbl-footer { padding: 8px 16px; font-size: 11px; color: var(--muted); background: white; border-top: 1px solid var(--border); }
+.empty-msg { text-align: center; color: var(--muted); padding: 60px 16px; font-size: 15px; }
+
+/* ============ AGE MODAL ============ */
+.am-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+.am-overlay.show { display: flex; }
+.am-card { background: white; border-radius: 16px; width: 100%; max-width: 360px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.3); animation: amSlideUp 0.25s ease-out; }
+@keyframes amSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.am-age-display { background: var(--header-grad); color: white; text-align: center; padding: 26px 16px 18px; }
+.am-age-num { font-size: 64px; font-weight: 700; line-height: 1; font-family: 'SF Pro Display', system-ui, sans-serif; }
+.am-age-unit { font-size: 22px; margin-left: 6px; opacity: 0.9; }
+.am-gender-wrap { padding: 14px 16px 0; }
+.am-gender-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--accent-light); border-radius: 999px; }
+.am-gender-btn { border: 0; background: transparent; padding: 10px; border-radius: 999px; cursor: pointer; font: inherit; color: var(--muted); transition: all 0.15s; }
+.am-gender-btn.am-active { background: white; color: var(--accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.am-bday-btn-wrap { padding: 12px 16px 8px; text-align: center; }
+.am-bday-btn { border: 1px solid var(--border); background: white; padding: 7px 16px; border-radius: 999px; font: inherit; font-size: 13px; color: var(--accent); cursor: pointer; }
+.am-back-btn { display: inline-block; margin-bottom: 8px; }
+.am-numpad-display { margin: 4px 16px 8px; text-align: center; font-size: 32px; font-weight: 700; font-family: 'SF Pro Display', system-ui, sans-serif; height: 42px; color: var(--accent); }
+.am-numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 16px 8px; }
+.am-num { border: 0; background: #f5f5f7; padding: 14px 0; border-radius: 12px; font: inherit; font-size: 22px; font-weight: 600; cursor: pointer; transition: all 0.1s; }
+.am-num:active { background: var(--accent-light); transform: scale(0.96); }
+.am-num-fn { background: #e8e8eb; color: var(--muted); font-size: 18px; }
+#am-panel-wheel { padding: 0 16px 8px; }
+.am-wheels { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 4px; height: 180px; position: relative; }
+.am-wheel-col { overflow: hidden; position: relative; background: #f8f8fb; border-radius: 8px; scroll-snap-type: y mandatory; overflow-y: scroll; scrollbar-width: none; }
+.am-wheel-col::-webkit-scrollbar { display: none; }
+/* 中央 pill 高亮:整條彩色底色,選中字浮在上方 */
+.am-wheel-col::before {
+  content: ''; position: absolute;
+  left: 6px; right: 6px;
+  top: 50%; transform: translateY(-50%);
+  height: 38px; border-radius: 10px;
+  background: var(--accent); opacity: 0.14;
+  pointer-events: none; z-index: 0;
+  transition: background 0.2s;
+}
+/* 上下漸層遮罩:讓滾出區域自然淡出,iOS picker 風格 */
+.am-wheel-col::after {
+  content: ''; position: absolute; inset: 0;
+  pointer-events: none; z-index: 3;
+  background: linear-gradient(
+    to bottom,
+    rgba(248, 248, 251, 0.92) 0%,
+    rgba(248, 248, 251, 0.4) 22%,
+    rgba(248, 248, 251, 0) 42%,
+    rgba(248, 248, 251, 0) 58%,
+    rgba(248, 248, 251, 0.4) 78%,
+    rgba(248, 248, 251, 0.92) 100%
+  );
+}
+.am-wheel-list { padding: 74px 0; position: relative; z-index: 1; }
+.am-wheel-item {
+  height: 32px; line-height: 32px;
+  text-align: center; font-size: 17px;
+  scroll-snap-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55; cursor: pointer;
+  transition: color 0.18s ease, font-size 0.18s ease, font-weight 0.18s ease, opacity 0.18s ease;
+}
+.am-wheel-item.selected {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 20px;
+  opacity: 1;
+}
+.am-wheel-labels { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 4px; text-align: center; font-size: 11px; color: var(--muted); margin-top: 4px; }
+.am-footer { padding: 8px 16px 16px; }
+.am-confirm { width: 100%; padding: 13px; border: 0; border-radius: 10px; background: var(--accent); color: white; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.am-confirm:active { transform: scale(0.98); }
+
+/* ============ BONUS MODAL ============ */
+.bm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1100; align-items: center; justify-content: center; padding: 16px; }
+.bm-overlay.show { display: flex; }
+.bm-card { background: white; border-radius: 16px; width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.3); animation: amSlideUp 0.25s ease-out; }
+.bm-header { background: var(--header-grad); color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+.bm-title { font-size: 17px; font-weight: 700; }
+.bm-close { border: 0; background: transparent; color: white; font-size: 22px; cursor: pointer; padding: 0; line-height: 1; }
+.bm-body { padding: 18px 20px; font-size: 13px; line-height: 1.7; color: var(--ink); }
+.bm-body .info-table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+.bm-body .info-table th, .bm-body .info-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: left; font-size: 12px; }
+.bm-body .info-table th { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.bm-body .info-table .hl { color: var(--accent); font-weight: 700; }
+.bm-body .info-table .na { color: #bbb; }
+.bm-body .info-highlight { background: var(--accent-light); color: var(--accent); padding: 8px 12px; border-radius: 6px; margin-top: 0.75rem; font-size: 12px; }
+.bm-body .info-foot { font-size: 11px; color: #999; margin-top: 0.5rem; }
+.bm-body .met { color: var(--accent); font-weight: 700; }
+.bm-body .nope { color: var(--muted); }
+
+@media (max-width: 720px) {
+  .header { gap: 18px; }
+  .age-circle { width: 110px; height: 110px; }
+  .age-num { font-size: 46px; }
+  .header-title { font-size: 22px; }
+  .prem-big { font-size: 26px; }
+  .info-body { grid-template-columns: 1fr; }
+  .info-right { border-top: 1px solid var(--border); }
+}
+@media (max-width: 540px) {
+  .header { flex-direction: column; gap: 12px; }
+  .age-circle { width: 96px; height: 96px; }
+  .age-num { font-size: 40px; }
+  .age-num.is-empty { font-size: 28px; }
+  .header-title { font-size: 20px; }
+  .prem-big { font-size: 24px; }
+  .mode-btn { font-size: 12px; padding: 9px 4px; }
+  .pill-btn { padding: 7px 16px; font-size: 13px; }
+  table.illu { font-size: 12px; }
+  table.illu thead th { font-size: 11px; padding: 8px 6px; }
+  table.illu td { padding: 7px 6px; }
+  .prod-btn { padding: 6px 12px; font-size: 12px; }
+}
+</style>
+<link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/icon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/icon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon/icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon/icon-512x512.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#2e8b7e">
+</head>
+<body>
+
+<div class="header-outer">
+  <div class="header">
+    <button class="age-circle" id="age-circle-btn" title="點此輸入年齡">
+      <div class="age-num is-empty" id="h-age">—</div>
+      <div class="age-label">歲</div>
+    </button>
+    <div class="header-center">
+      <div class="header-title" id="h-title">PFW-70退 美好優退</div>
+      <div class="header-subtitle" id="header-subtitle">富邦人壽美好優退外幣分紅終身保險</div>
+      <div class="bonus-row">
+        <button class="bonus-pill" id="bonus-lucky-pill">
+          <span class="bonus-icon">💡</span> 馬上幸福 <span class="bonus-amt" id="bonus-lucky-amt">—</span>
+        </button>
+        <button class="bonus-pill" id="bonus-wallet-pill">
+          <span class="bonus-icon">💡</span> 富邦錢包 <span class="bonus-amt" id="bonus-wallet-amt">—</span>
+        </button>
+      </div>
+      <div class="prem-big">$&nbsp;<span id="h-prem">—</span><small>&nbsp;<span class="ccyLabel">元</span></small></div>
+      <div class="prem-unit">折扣後年繳保費</div>
+    </div>
+  </div>
+</div>
+
+<div class="body-outer"><div class="body">
+  <div class="err-msg" id="err-msg" style="display:none"></div>
+
+  <!-- ctrl row: 性別 | 保額± | 幣別 -->
+  <div class="ctrl-row">
+    <div class="pill-toggle" id="genderToggle">
+      <button class="pill-btn active" data-gender="1">男</button>
+      <button class="pill-btn" data-gender="2">女</button>
+    </div>
+    <div class="ctrl-center">
+      <div class="amount-row body-amount-row">
+        <span class="amount-label">保額</span>
+        <button class="amt-btn" id="btn-minus">－</button>
+        <input class="amt-display" id="amt-display" type="number" min="0.5" step="0.1" placeholder="—">
+        <button class="amt-btn" id="btn-plus">＋</button>
+        <span class="amt-unit">萬</span>
+      </div>
+    </div>
+    <div class="ctrl-right">
+      <div class="pill-toggle" id="ccyToggle">
+        <button class="pill-btn active" data-c="TWD">台幣&nbsp;<input class="exrate-inline" id="exrate" value="32.00" type="number" step="0.01" min="1" onclick="event.stopPropagation()"></button>
+        <button class="pill-btn" data-c="USD">美元</button>
+      </div>
+      <div class="fx-status" id="fxStatus"></div>
+    </div>
+  </div>
+
+  <!-- 商品變體 (退休年齡) -->
+  <div class="prod-row" id="prodRow">
+    <!-- 動態渲染 -->
+  </div>
+
+  <!-- 模式切換 -->
+  <div class="mode-row" id="modeRow">
+    <button class="mode-btn active" data-mode="total" id="mode-btn-total">N年總存</button>
+    <button class="mode-btn" data-mode="annual">年存</button>
+    <button class="mode-btn" data-mode="retire">退休金年領</button>
+  </div>
+
+  <!-- 大輸入框 -->
+  <div class="amount-input-row">
+    <div class="amount-input-wrap">
+      <input class="amount-text-input" id="amount-text" type="number" min="0.1" step="1" value="100">
+      <span class="amount-text-unit" id="amount-text-unit">萬(六年總存)</span>
+    </div>
+  </div>
+
+  <!-- Quick rows (一次顯示一個 mode 的) -->
+  <div class="quick-row" id="quick-row-total">
+    <button class="quick-btn" data-q="50">50</button>
+    <button class="quick-btn active" data-q="100">100</button>
+    <button class="quick-btn" data-q="300">300</button>
+    <button class="quick-btn" data-q="600">600</button>
+    <span class="quick-unit" id="quick-total-unit">萬台幣(六年總存)</span>
+  </div>
+  <div class="quick-row" id="quick-row-annual" style="display:none">
+    <button class="quick-btn" data-q="10">10</button>
+    <button class="quick-btn active" data-q="20">20</button>
+    <button class="quick-btn" data-q="30">30</button>
+    <button class="quick-btn" data-q="50">50</button>
+    <span class="quick-unit" id="quick-annual-unit">萬台幣/年</span>
+  </div>
+  <div class="quick-row" id="quick-row-retire" style="display:none">
+    <button class="quick-btn" data-q="12">12</button>
+    <button class="quick-btn" data-q="24">24</button>
+    <button class="quick-btn active" data-q="36">36</button>
+    <button class="quick-btn" data-q="60">60</button>
+    <button class="quick-btn" data-q="120">120</button>
+    <span class="quick-unit" id="quick-retire-unit">萬台幣/年</span>
+  </div>
+
+  <div class="summary-pill" id="summary-pill" style="display:none"></div>
+  <button class="fx-refresh-btn" id="fxRefresh" style="margin-left:8px">↻ 更新匯率</button>
+
+  <!-- INFOGRAPHIC 對比圖 (PFW 獨有) -->
+  <div class="info-section" id="info-section" style="display:none">
+    <div class="info-header">
+      <div class="info-header-left">富邦幫你存</div>
+      <div class="info-header-right">自己慢慢存</div>
+    </div>
+    <div class="info-body">
+      <div class="info-left">
+        <div class="info-donut-wrap">
+          <div class="info-donut" id="ig-donut-left">
+            <span><span id="ig-age-left">—</span>歲</span>
+          </div>
+          <div><span class="info-amt" id="ig-H">—</span><span class="info-amt-unit"> 萬</span></div>
+        </div>
+        <div class="info-col">
+          <div class="info-years-big"><span id="ig-period-big">6</span><span class="info-years-unit">年</span></div>
+          <div class="info-row-item">一年存 <strong id="ig-C">—</strong> 萬，只要存 <strong id="ig-period-text">6</strong> 年</div>
+          <div class="info-row-item">退休時帳戶增值到 <strong id="ig-D">—</strong> 萬</div>
+          <div class="info-row-item">省下 <strong id="ig-E">—</strong> 萬</div>
+          <div class="info-divider"></div>
+          <div class="info-row-item muted">退休 <span id="ig-retire-years-l">—</span> 年 <span id="ig-X-l">—</span>～85歲</div>
+          <div class="info-row-item">退休時每年花 <strong id="ig-F">—</strong> 萬</div>
+          <div class="info-row-item"><strong>花完</strong>了 <strong id="ig-G">—</strong> 萬</div>
+        </div>
+      </div>
+
+      <div class="info-right">
+        <div class="info-col">
+          <div class="info-years-big" id="ig-years-right"><span id="ig-B">—</span><span class="info-years-unit">年</span></div>
+          <div class="info-row-item">一年存 <strong id="ig-I">—</strong> 萬，持續存 <strong id="ig-J">—</strong> 年</div>
+          <div class="info-row-item">退休時存款累積到 <strong id="ig-K">—</strong> 萬</div>
+          <div class="info-row-item">總存 <strong id="ig-L">—</strong> 萬</div>
+          <div class="info-divider"></div>
+          <div class="info-row-item muted">退休 <span id="ig-retire-years-r">—</span> 年 <span id="ig-X-r">—</span>～85歲</div>
+          <div class="info-row-item">退休時每年花 <strong id="ig-M">—</strong> 萬</div>
+          <div class="info-row-item"><strong>花光</strong>了 <strong id="ig-N">—</strong> 萬</div>
+        </div>
+        <div class="info-donut-wrap">
+          <div class="info-donut" id="ig-donut-right">
+            <span><span id="ig-age-right">—</span>歲</span>
+          </div>
+          <div><span class="info-amt" id="ig-P">0</span><span class="info-amt-unit"> 萬</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retire 模式：跨商品比對表 -->
+  <div class="retire-compare-section" id="retire-compare-section" style="display:none">
+    <div class="tbl-section">
+      <div class="tbl-note" id="retire-compare-note">退休年領比對</div>
+      <div class="tbl-wrap">
+        <table class="retire-compare-table" id="retire-compare-table">
+          <thead><tr>
+            <th>商品</th><th>退休年齡</th><th>保額(萬)</th>
+            <th>年繳保費</th><th id="retire-total-prem-th">N年總保費</th>
+            <th>首次領回</th><th>年度生存金</th>
+          </tr></thead>
+          <tbody id="retire-compare-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主表格 -->
+  <div class="tbl-section" id="tbl-section" style="display:none">
+    <div class="tbl-note">‧ 本保險為分紅保險單,保單紅利為預估值,本公司不保證其給付金額。最可能紅利‧繳清保險金額。</div>
+    <div class="tbl-wrap">
+      <table class="illu">
+        <thead><tr id="thead-row">
+          <!-- 動態渲染 columns -->
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="tbl-footer">※ 單位:<span id="tbl-unit">新台幣元</span>。實際給付以富邦人壽核保保單條款為準。</div>
+  </div>
+  <div class="empty-msg" id="empty-msg">請輸入年齡後自動計算</div>
+</div></div>
+
+<!-- AGE MODAL -->
+<div class="am-overlay" id="am-overlay">
+  <div class="am-card" id="am-card">
+    <div class="am-age-display">
+      <span class="am-age-num" id="am-age-num">—</span>
+      <span class="am-age-unit">歲</span>
+    </div>
+    <div class="am-gender-wrap">
+      <div class="am-gender-seg">
+        <button class="am-gender-btn am-active" id="am-male" data-g="1">男</button>
+        <button class="am-gender-btn" id="am-female" data-g="2">女</button>
+      </div>
+    </div>
+    <div class="am-bday-btn-wrap" id="am-bday-btn-wrap">
+      <button class="am-bday-btn" id="am-show-wheel">🎂&nbsp;改用生日輸入</button>
+    </div>
+    <div id="am-panel-num">
+      <div class="am-numpad-display" id="am-numpad-display">—</div>
+      <div class="am-numpad-grid">
+        <button class="am-num" data-k="1">1</button>
+        <button class="am-num" data-k="2">2</button>
+        <button class="am-num" data-k="3">3</button>
+        <button class="am-num" data-k="4">4</button>
+        <button class="am-num" data-k="5">5</button>
+        <button class="am-num" data-k="6">6</button>
+        <button class="am-num" data-k="7">7</button>
+        <button class="am-num" data-k="8">8</button>
+        <button class="am-num" data-k="9">9</button>
+        <button class="am-num am-num-fn" data-k="back">⌫</button>
+        <button class="am-num" data-k="0">0</button>
+        <button class="am-num am-num-fn" data-k="clear">C</button>
+      </div>
+    </div>
+    <div id="am-panel-wheel" style="display:none">
+      <button class="am-bday-btn am-back-btn" id="am-show-num">←&nbsp;返回鍵盤</button>
+      <div class="am-wheels" id="am-wheels">
+        <div class="am-wheel-col" id="am-wc-year"><div class="am-wheel-list" id="am-wl-year"></div></div>
+        <div class="am-wheel-col" id="am-wc-month"><div class="am-wheel-list" id="am-wl-month"></div></div>
+        <div class="am-wheel-col" id="am-wc-day"><div class="am-wheel-list" id="am-wl-day"></div></div>
+      </div>
+      <div class="am-wheel-labels"><span>民國年</span><span>月</span><span>日</span></div>
+    </div>
+    <div class="am-footer">
+      <button class="am-confirm" id="am-confirm">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- BONUS MODAL -->
+<div class="bm-overlay" id="bm-overlay">
+  <div class="bm-card">
+    <div class="bm-header">
+      <span class="bm-title" id="bm-title">回饋說明</span>
+      <button class="bm-close" id="bm-close">✕</button>
+    </div>
+    <div class="bm-body" id="bm-body"></div>
+  </div>
+</div>
+
+<!-- 商品設定 + 精算資料 + 引擎 -->
+<script src="products/PF566/config.js"></script>
+<script src="products/PF566/data.js"></script>
+<script src="engines/engine-retirement-income.js"></script>
+
+<script>
+// ============================================================
+// PF566 美富優退 — 主控制器
+// 依賴：window.RATES / window.PDATA / window.AGE_MAX (data.js)
+//       window.RetirementIncomeEngine (engine-retirement-income.js)
+// ============================================================
+let CONFIG = null;
+const E = window.RetirementIncomeEngine;
+const TODAY = new Date();  // 動態當天日期(每次開頁面用今天算保險年齡)
+
+let state = {
+  gender: 1, insAge: -1,
+  prod: 'PF6506',                    // 預設 65退-6年
+  sumInsured: 10,                    // 萬美元
+  mode: 'total', inputAmount: 100,
+  directSum: null,
+  currency: 'TWD', fxRate: 32.00,
+};
+
+function fmt0(n) { return Math.round(n).toLocaleString('en-US'); }
+function convert(usd) { return state.currency === 'TWD' ? Math.round(usd * state.fxRate) : usd; }
+function fmtMoney(usd) { return (usd == null || usd === 0) ? '—' : fmt0(convert(usd)); }
+function showError(msg) { const el = document.getElementById('err-msg'); el.textContent = msg; el.style.display = 'block'; document.getElementById('tbl-section').style.display = 'none'; }
+function hideError() { document.getElementById('err-msg').style.display = 'none'; }
+function getVariant(prodKey) { return CONFIG.productVariants.find(v => v.key === prodKey); }
+function getDefaultProd() { return (CONFIG.productVariants.find(v => v.default) || CONFIG.productVariants[0]).key; }
+function maxSumByAge(age) {
+  for (const seg of CONFIG.sumLimits) if (age <= seg.ageMax) return seg.max;
+  return CONFIG.sumLimits[CONFIG.sumLimits.length - 1].max;
+}
+function clampSum(s) { const minS = 0.5, maxS = maxSumByAge(state.insAge); return Math.max(minS, Math.min(maxS, +(Math.round(s * 10) / 10).toFixed(1))); }
+function getPeriod() { return (getVariant(state.prod) || CONFIG.productVariants[0]).period || 6; }
+function discCfg() { return CONFIG.discount[String(getPeriod())]; }
+
+// ── 期間感知反推：N年總存 → 保額 ─────────────────────────────
+function amtWanFromNyrTotal(totalTWD, gender, age, prod, exrate, dCfg) {
+  const period = getPeriod();
+  const g = gender === 1 ? 'M' : 'F';
+  const ratePerWan = (window.RATES[prod] && window.RATES[prod][g] && window.RATES[prod][g][age]) || 0;
+  if (!ratePerWan) return null;
+  let amtWan = totalTWD / (period * ratePerWan * 0.97 * exrate);
+  for (let i = 0; i < 5; i++) {
+    const disc = E.getDiscRate(amtWan, dCfg);
+    amtWan = totalTWD / (period * ratePerWan * (1 - disc) * exrate);
+  }
+  return Math.round(amtWan * 10) / 10;
+}
+
+// ====== 商品變體列渲染（2層：退休年齡 × 年期） ======
+function renderProdRow() {
+  const row = document.getElementById('prodRow');
+  const currentVariant = getVariant(state.prod) || CONFIG.productVariants.find(v => v.default) || CONFIG.productVariants[0];
+  const currentRetireAge = currentVariant.retireAge;
+  const currentPeriod = currentVariant.period;
+
+  // 退休年齡按鈕（去重）
+  const retireAges = [...new Set(CONFIG.productVariants.map(v => v.retireAge))];
+  const ageButtons = retireAges.map(ra => {
+    const variantsForAge = CONFIG.productVariants.filter(v => v.retireAge === ra);
+    const disabled = state.insAge >= 0 && variantsForAge.every(v => state.insAge > v.ageMax) ? ' disabled' : '';
+    const active = ra === currentRetireAge ? ' active' : '';
+    return `<button class="prod-btn${active}${disabled}" data-ra="${ra}" title="${ra}歲開始領回">${ra}退</button>`;
+  }).join('');
+
+  // 年期按鈕
+  const periodButtons = CONFIG.periodOptions.map(p => {
+    const active = p === currentPeriod ? ' active' : '';
+    return `<button class="prod-btn${active}" data-period="${p}">${p}年期</button>`;
+  }).join('');
+
+  const sep = '<span style="color:var(--muted);font-size:13px;padding:0 4px;align-self:center">｜</span>';
+  row.innerHTML = ageButtons + sep + periodButtons;
+
+  row.querySelectorAll('[data-ra]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('disabled')) return;
+      const ra = parseInt(btn.dataset.ra, 10);
+      const v = CONFIG.productVariants.find(v => v.retireAge === ra && v.period === currentPeriod);
+      if (v) { state.prod = v.key; renderProdRow(); recompute(); }
+    });
+  });
+  row.querySelectorAll('[data-period]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = parseInt(btn.dataset.period, 10);
+      const v = CONFIG.productVariants.find(v => v.retireAge === currentRetireAge && v.period === p);
+      if (v) { state.prod = v.key; renderProdRow(); recompute(); }
+    });
+  });
+
+  // 同步 header title & mode-btn-total 標籤
+  const variant = getVariant(state.prod);
+  if (variant) document.getElementById('h-title').textContent = `${CONFIG.code}-${variant.label} ${CONFIG.name}`;
+  const totalBtn = document.getElementById('mode-btn-total');
+  if (totalBtn) totalBtn.textContent = `${currentPeriod}年總存`;
+}
+
+// ====== 主計算 ======
+function computePremiumWith(amtWan) {
+  return E.computePremium(state.prod, state.gender, state.insAge, amtWan, state.fxRate, discCfg());
+}
+
+function recompute() {
+  if (state.insAge < 0) {
+    document.getElementById('h-age').textContent = '—';
+    document.getElementById('h-age').classList.add('is-empty');
+    document.getElementById('h-prem').textContent = '—';
+    document.getElementById('amt-display').value = '';
+    document.getElementById('summary-pill').style.display = 'none';
+    document.getElementById('tbl-section').style.display = 'none';
+    document.getElementById('info-section').style.display = 'none';
+    document.getElementById('retire-compare-section').style.display = 'none';
+    document.getElementById('empty-msg').style.display = 'block';
+    return;
+  }
+  document.getElementById('h-age').classList.remove('is-empty');
+  document.getElementById('h-age').textContent = state.insAge;
+
+  const variant = getVariant(state.prod);
+  if (state.insAge > variant.ageMax) {
+    showError(`${variant.label}（${variant.retireAge}歲開始領回）承保年齡 0~${variant.ageMax} 歲，目前 ${state.insAge} 歲不符合`);
+    document.getElementById('tbl-section').style.display = 'none';
+    document.getElementById('info-section').style.display = 'none';
+    document.getElementById('retire-compare-section').style.display = 'none';
+    return;
+  }
+  hideError();
+
+  // ── retire 模式：跨商品比對 ──
+  if (state.mode === 'retire') {
+    renderRetireMode();
+    return;
+  }
+  document.getElementById('retire-compare-section').style.display = 'none';
+
+  // ── total / annual ──
+  let amtWan;
+  if (state.directSum != null) {
+    amtWan = clampSum(state.directSum);
+  } else {
+    const usdPerInputWan = state.currency === 'TWD' ? (10000 / state.fxRate) : 10000;
+    const period = getPeriod();
+    let totalUsd;
+    if (state.mode === 'annual') totalUsd = state.inputAmount * usdPerInputWan * period;
+    else totalUsd = state.inputAmount * usdPerInputWan;
+    // 反推時用台幣等價
+    const totalTWD = state.currency === 'TWD' ? state.inputAmount * 10000 * (state.mode === 'annual' ? period : 1) : Math.round(totalUsd * state.fxRate);
+    amtWan = amtWanFromNyrTotal(totalTWD, state.gender, state.insAge, state.prod, state.fxRate, discCfg());
+    if (!amtWan) { showError('查無此組合的費率資料'); return; }
+    amtWan = clampSum(amtWan);
+  }
+  state.sumInsured = amtWan;
+  document.getElementById('amt-display').value = amtWan.toFixed(1);
+
+  const prem = computePremiumWith(amtWan);
+  document.getElementById('h-prem').textContent = state.currency === 'TWD' ? fmt0(prem.premTWD) : fmt0(prem.discUSD);
+
+  updateBonusPills(prem.discUSD);
+
+  document.getElementById('summary-pill').style.display = 'inline-block';
+  document.getElementById('summary-pill').innerHTML = `${getPeriod()} 年期 · <b>${amtWan} 萬</b> · ${variant.label} · 折扣率 ${(prem.discount * 100).toFixed(0)}%`;
+
+  const rows = E.computeBenefitTable(state.prod, state.gender, state.insAge, amtWan, 2);
+  if (rows) {
+    renderTable(rows, prem);
+    document.getElementById('tbl-section').style.display = 'block';
+    updateInfographic(amtWan, rows);
+  }
+  document.getElementById('empty-msg').style.display = 'none';
+}
+
+function renderTable(rows, prem) {
+  const thead = document.getElementById('thead-row');
+  thead.innerHTML = CONFIG.columns.map(c => `<th>${c.label}</th>`).join('');
+
+  const annualUSD = prem.discUSD;
+  const period = getPeriod();
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = rows.map(r => {
+    const yr = r.yr;
+    const paid_yr = yr <= period ? annualUSD : 0;
+    const paid_cum = annualUSD * Math.min(yr, period);
+    const surv_pct = (r.surv > 0 && paid_cum > 0) ? (r.surv / paid_cum * 100).toFixed(1) + '%' : '—';
+    const profit = r.cumSurv + r.surr - paid_cum;
+    const cls = r.surv > 0 ? 'surv-row' : '';
+    const cells = CONFIG.columns.map(c => {
+      switch (c.key) {
+        case 'year':     return `<td class="txt">${yr}</td>`;
+        case 'age':      return `<td class="txt">${r.age}</td>`;
+        case 'paid_yr':  return `<td>${paid_yr === 0 ? '—' : fmt0(convert(paid_yr))}</td>`;
+        case 'paid_cum': return `<td>${fmt0(convert(paid_cum))}</td>`;
+        case 'surv_yr':  return `<td>${r.surv > 0 ? '<b>' + fmt0(convert(r.surv)) + '</b>' : '—'}</td>`;
+        case 'surv_pct': return `<td>${r.surv > 0 ? '<b>' + surv_pct + '</b>' : '—'}</td>`;
+        case 'surv_cum': return `<td>${r.cumSurv > 0 ? fmt0(convert(r.cumSurv)) : '—'}</td>`;
+        case 'death':    return `<td><b>${fmt0(convert(r.death))}</b></td>`;
+        case 'surr':     return `<td>${fmt0(convert(r.surr))}</td>`;
+        case 'profit':   return `<td>${profit > 0 ? fmt0(convert(profit)) : '—'}</td>`;
+        default: return '<td>—</td>';
+      }
+    }).join('');
+    return `<tr class="${cls}">${cells}</tr>`;
+  }).join('');
+  document.getElementById('tbl-unit').textContent = state.currency === 'TWD' ? '新台幣元' : '美元';
+}
+
+// ====== Retire mode：跨商品比對 ======
+function renderRetireMode() {
+  document.getElementById('tbl-section').style.display = 'none';
+  document.getElementById('empty-msg').style.display = 'none';
+
+  const exrate = state.fxRate;
+  const useTWD = state.currency === 'TWD';
+  const targetWanPerYear = state.inputAmount;
+  const targetUSD = useTWD ? (targetWanPerYear * 10000 / exrate) : (targetWanPerYear * 10000);
+  const fx = useTWD ? exrate : 1;
+  const unitLabel = useTWD ? '台幣' : '美元';
+  const tw = n => Math.round(n).toLocaleString('zh-TW');
+
+  const period = getPeriod();
+  // 只比對相同年期的變體
+  const compareRows = CONFIG.productVariants.filter(v => v.period === period).map(v => {
+    if (state.insAge > v.ageMax) return null;
+    const amtWan = E.findAmtForSurv(v.key, state.gender, state.insAge, targetUSD);
+    if (!amtWan || amtWan < 0.5) return null;
+    const prem = E.computePremium(v.key, state.gender, state.insAge, amtWan, exrate, discCfg());
+    const tbl = E.computeBenefitTable(v.key, state.gender, state.insAge, amtWan, 2);
+    const firstSurv = tbl ? tbl.find(r => r.surv > 0) : null;
+    const firstDisp = firstSurv ? Math.round(firstSurv.surv * fx) : 0;
+    return {
+      key: v.key, label: v.label, retireAge: v.retireAge,
+      amtWan: amtWan,
+      premDisp: useTWD ? prem.premTWD : prem.discUSD,
+      total6: (useTWD ? prem.premTWD : prem.discUSD) * period,
+      discUSD: prem.discUSD,
+      firstAge: firstSurv ? firstSurv.age : '—',
+      firstYr: firstSurv ? firstSurv.yr : '—',
+      firstDisp: firstDisp,
+      tbl: tbl
+    };
+  }).filter(Boolean);
+  const thTotal = document.getElementById('retire-total-prem-th');
+  if (thTotal) thTotal.textContent = `${period}年總保費`;
+
+  const note = `各商品最接近每年領回 <strong>${tw(targetWanPerYear * 10000)} ${unitLabel}</strong> 的保額試算（${state.insAge} 歲・最可能分紅）`;
+  document.getElementById('retire-compare-note').innerHTML = note;
+  const tbody = document.getElementById('retire-compare-tbody');
+  tbody.innerHTML = compareRows.map(r => {
+    const sel = r.key === state.prod ? ' class="selected"' : '';
+    return `<tr${sel} data-prod="${r.key}" style="cursor:pointer">
+      <td class="txt"><strong>${r.label}</strong></td>
+      <td class="txt">${r.retireAge}歲</td>
+      <td>${r.amtWan}</td>
+      <td>${tw(r.premDisp)}</td>
+      <td>${tw(r.total6)}</td>
+      <td>${r.firstAge}歲(yr${r.firstYr})</td>
+      <td><strong>${tw(r.firstDisp)}</strong></td>
+    </tr>`;
+  }).join('');
+  // 點 row 切商品
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const newProd = tr.dataset.prod;
+      if (newProd && newProd !== state.prod) {
+        state.prod = newProd;
+        renderProdRow();
+        renderRetireMode();
+      }
+    });
+  });
+  document.getElementById('retire-compare-section').style.display = 'block';
+
+  // 主商品的完整表 + infographic
+  const sel = compareRows.find(r => r.key === state.prod);
+  if (sel && sel.tbl) {
+    state.sumInsured = sel.amtWan;
+    document.getElementById('amt-display').value = sel.amtWan.toFixed(1);
+    document.getElementById('h-prem').textContent = useTWD ? fmt0(sel.premDisp) : fmt0(sel.discUSD);
+    updateBonusPills(sel.discUSD);
+    document.getElementById('summary-pill').style.display = 'inline-block';
+    const variant = getVariant(state.prod);
+    document.getElementById('summary-pill').innerHTML = `${variant.label}（${period}年）· <b>${sel.amtWan} 萬</b> · 退休金年領 ${tw(targetWanPerYear * 10000)} ${unitLabel}`;
+
+    // 完整表
+    const prem = E.computePremium(state.prod, state.gender, state.insAge, sel.amtWan, exrate, discCfg());
+    renderTable(sel.tbl, prem);
+    document.getElementById('tbl-section').style.display = 'block';
+    updateInfographic(sel.amtWan, sel.tbl);
+  }
+}
+
+// ====== INFOGRAPHIC（吃 --accent，男 mint 女 桃紅） ======
+function updateInfographic(amtWan, tbl) {
+  const sec = document.getElementById('info-section');
+  if (!tbl || tbl.length === 0) { sec.style.display = 'none'; return; }
+  const firstSurvRow = tbl.find(r => r.surv > 0);
+  if (!firstSurvRow) { sec.style.display = 'none'; return; }
+
+  const fx = state.fxRate;  // 比對圖一律台幣呈現
+  const variant = getVariant(state.prod);
+  const A = state.insAge, X = variant.retireAge;
+  const prem = E.computePremium(state.prod, state.gender, state.insAge, amtWan, fx, discCfg());
+
+  const igPeriod = getPeriod();
+  // C = 年繳折扣後保費(萬台幣)
+  const C = Math.round(prem.premTWD / 10000 * 10) / 10;
+  const D = Math.round(firstSurvRow.surr * fx / 10000 * 10) / 10;
+  const E_ = Math.round((D - C * igPeriod) * 10) / 10;
+  const F = Math.round(firstSurvRow.surv * fx / 10000 * 10) / 10;
+  const G = Math.round((85 - X) * F * 10) / 10;
+  const row85 = tbl.find(r => r.age === 85) || tbl[tbl.length - 1];
+  const H = Math.round(row85.surr * fx / 10000 * 10) / 10;
+  const B = X - A, J = B, K = D, L = K, I = J > 0 ? Math.round(K / J * 10) / 10 : 0;
+  const M = F, N = Math.round(M * (85 - X) * 10) / 10;
+  const P = N >= L ? 0 : Math.round((L - N) * 10) / 10;
+  const shortfall = N > L ? Math.round((N - L) * 10) / 10 : 0;
+  const fmt = v => v.toLocaleString('zh-TW');
+
+  document.getElementById('ig-age-left').textContent = A;
+  document.getElementById('ig-age-right').textContent = A;
+  const igPeriodEl = document.getElementById('ig-period-big');
+  const igPeriodTxt = document.getElementById('ig-period-text');
+  if (igPeriodEl) igPeriodEl.textContent = igPeriod;
+  if (igPeriodTxt) igPeriodTxt.textContent = igPeriod;
+  document.getElementById('ig-C').textContent = fmt(C);
+  document.getElementById('ig-D').textContent = fmt(D);
+  document.getElementById('ig-E').textContent = fmt(E_);
+  document.getElementById('ig-F').textContent = fmt(F);
+  document.getElementById('ig-G').textContent = fmt(G);
+  document.getElementById('ig-H').textContent = fmt(H);
+  document.getElementById('ig-B').textContent = B;
+  document.getElementById('ig-I').textContent = fmt(I);
+  document.getElementById('ig-J').textContent = J;
+  document.getElementById('ig-K').textContent = fmt(K);
+  document.getElementById('ig-L').textContent = fmt(L);
+  document.getElementById('ig-M').textContent = fmt(M);
+  document.getElementById('ig-N').textContent = shortfall > 0 ? fmt(L) + ' + 不足 ' + fmt(shortfall) + ' 萬' : fmt(N);
+  document.getElementById('ig-X-l').textContent = X;
+  document.getElementById('ig-X-r').textContent = X;
+  document.getElementById('ig-retire-years-l').textContent = 85 - X;
+  document.getElementById('ig-retire-years-r').textContent = 85 - X;
+  document.getElementById('ig-P').textContent = shortfall > 0 ? '0' : fmt(P);
+
+  // donut 用 --accent 變數，男女自動換
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() ||
+                      (state.gender === 2 ? '#c44a7c' : '#2e8b7e');
+  // 因為 :root 的 --accent 在 body.female 才換,要從 body 讀
+  const realAccent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+  const usedColor = realAccent || accentColor;
+  const donutBg = '#e0e0e0';
+  const agePct = Math.min(A, 99);
+  document.getElementById('ig-donut-left').style.background =
+    `conic-gradient(${usedColor} ${agePct}%, ${donutBg} ${agePct}%)`;
+  document.getElementById('ig-donut-right').style.background =
+    `conic-gradient(${usedColor} ${agePct}%, ${donutBg} ${agePct}%)`;
+  sec.style.display = 'block';
+}
+
+// ====== BONUS pills ======
+function bonusInfo(annual_disc) {
+  const lucky = { met: false, pct: 0, threshold: 0, twd: 0 };
+  const wallet = { met: false, threshold: 0, twd: 0 };
+  const lk = (CONFIG.bonus.lucky || []).find(r => r.period === getPeriod());
+  const wl = (CONFIG.bonus.wallet || []).find(r => r.period === getPeriod());
+  if (lk) {
+    lucky.pct = lk.pct; lucky.threshold = lk.minAnnualUsd;
+    if (annual_disc >= lk.minAnnualUsd) {
+      lucky.met = true;
+      lucky.twd = Math.round(annual_disc * (lk.pct / 100) * state.fxRate);
+    }
+  }
+  if (wl) {
+    wallet.threshold = wl.minAnnualUsd;
+    if (annual_disc >= wl.minAnnualUsd) {
+      wallet.met = true;
+      wallet.twd = CONFIG.bonus.walletAmount || 8000;
+    }
+  }
+  return { lucky, wallet };
+}
+function updateBonusPills(annual_disc) {
+  const b = bonusInfo(annual_disc);
+  const luckyAmt = document.getElementById('bonus-lucky-amt');
+  const luckyPill = document.getElementById('bonus-lucky-pill');
+  const walletAmt = document.getElementById('bonus-wallet-amt');
+  const walletPill = document.getElementById('bonus-wallet-pill');
+  if (b.lucky.met) { luckyAmt.textContent = 'NT$ ' + b.lucky.twd.toLocaleString('en-US'); luckyPill.classList.remove('is-disabled'); }
+  else { luckyAmt.textContent = '—'; luckyPill.classList.add('is-disabled'); }
+  if (b.wallet.met) { walletAmt.textContent = 'NT$ ' + b.wallet.twd.toLocaleString('en-US'); walletPill.classList.remove('is-disabled'); }
+  else { walletAmt.textContent = '—'; walletPill.classList.add('is-disabled'); }
+}
+function openBonusModal(which) {
+  const overlay = document.getElementById('bm-overlay');
+  const title = document.getElementById('bm-title');
+  const body = document.getElementById('bm-body');
+  if (which === 'lucky') {
+    title.textContent = '💡 馬上幸福（分期繳回饋）';
+    body.innerHTML = CONFIG.bonus.luckyContent || '';
+  } else {
+    title.textContent = '💡 富邦錢包 NT$8,000';
+    body.innerHTML = CONFIG.bonus.walletContent || '';
+  }
+  overlay.classList.add('show');
+}
+function closeBonusModal() { document.getElementById('bm-overlay').classList.remove('show'); }
+
+// ====== AGE MODAL ======
+let amState = { mode: 'num', numStr: '', gender: 1, year: 85, month: 1, day: 1 };
+function openAgeModal() {
+  amState.gender = state.gender;
+  amState.numStr = state.insAge >= 0 ? String(state.insAge) : '';
+  document.getElementById('am-overlay').classList.add('show');
+  updateAmDisplay(); updateAmGender();
+}
+function closeAgeModal() { document.getElementById('am-overlay').classList.remove('show'); }
+function updateAmDisplay() {
+  document.getElementById('am-numpad-display').textContent = amState.numStr || '—';
+  document.getElementById('am-age-num').textContent = amState.numStr || '—';
+}
+function updateAmGender() {
+  document.getElementById('am-male').classList.toggle('am-active', amState.gender === 1);
+  document.getElementById('am-female').classList.toggle('am-active', amState.gender === 2);
+  document.body.classList.toggle('female', amState.gender === 2);
+}
+function amNumKey(k) {
+  if (k === 'clear') amState.numStr = '';
+  else if (k === 'back') amState.numStr = amState.numStr.slice(0, -1);
+  else if (amState.numStr.length < 2) amState.numStr += k;
+  updateAmDisplay();
+}
+function amSetGender(g) { amState.gender = g; updateAmGender(); }
+function amConfirm() {
+  if (amState.mode === 'num') {
+    const age = parseInt(amState.numStr, 10);
+    if (isNaN(age) || age < 0 || age > 59) { alert('PF566 承保年齡需介於 0 ~ 59 歲'); return; }
+    state.insAge = age;
+  } else {
+    const adYear = amState.year + 1911;
+    const birth = new Date(adYear, amState.month - 1, amState.day);
+    if (birth > TODAY) { alert('生日不能晚於今天'); return; }
+    let actAge = TODAY.getFullYear() - birth.getFullYear();
+    const m = TODAY.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && TODAY.getDate() < birth.getDate())) actAge--;
+    const lastBday = new Date(adYear + actAge, amState.month - 1, amState.day);
+    let monthsSince = (TODAY.getFullYear() - lastBday.getFullYear()) * 12 + (TODAY.getMonth() - lastBday.getMonth());
+    if (TODAY.getDate() < lastBday.getDate()) monthsSince -= 1;
+    state.insAge = actAge + (monthsSince > 6 ? 1 : 0);
+    if (state.insAge < 0 || state.insAge > 59) { alert('保險年齡 ' + state.insAge + ' 不在 0~59 範圍'); return; }
+  }
+  state.gender = amState.gender;
+  document.querySelectorAll('#genderToggle .pill-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.gender, 10) === state.gender);
+  });
+  document.body.classList.toggle('female', state.gender === 2);
+  // 自動切到年齡可承保的商品（優先保持相同年期）
+  if (!getVariant(state.prod) || state.insAge > getVariant(state.prod).ageMax) {
+    const curPeriod = getPeriod();
+    let fit = CONFIG.productVariants.find(v => v.period === curPeriod && state.insAge <= v.ageMax);
+    if (!fit) fit = CONFIG.productVariants.find(v => state.insAge <= v.ageMax);
+    if (fit) state.prod = fit.key;
+  }
+  state.directSum = null;
+  renderProdRow();
+  closeAgeModal();
+  recompute();
+}
+function amSwitchView(v) {
+  amState.mode = v;
+  const pNum = document.getElementById('am-panel-num');
+  const pWheel = document.getElementById('am-panel-wheel');
+  pNum.style.display = v === 'num' ? '' : 'none';
+  pWheel.style.display = v === 'wheel' ? '' : 'none';
+  if (v === 'wheel') {
+    void pWheel.offsetHeight;  // 強制 layout 後才填內容,確保 col 有 clientHeight
+    buildWheels();
+  }
+}
+function buildWheels() {
+  const today_roc = TODAY.getFullYear() - 1911;
+  const years = [], months = [], days = [];
+  for (let y = today_roc; y >= today_roc - 80; y--) years.push(y);
+  for (let m = 1; m <= 12; m++) months.push(m);
+  for (let d = 1; d <= 31; d++) days.push(d);
+  fillWheel('am-wl-year', years, amState.year);
+  fillWheel('am-wl-month', months, amState.month);
+  fillWheel('am-wl-day', days, amState.day);
+}
+function fillWheel(id, items, sel) {
+  const el = document.getElementById(id);
+  const col = el.parentElement;
+  el.innerHTML = items.map(v => `<div class="am-wheel-item ${v===sel?'selected':''}" data-v="${v}">${v}</div>`).join('');
+
+  const stateKey = id === 'am-wl-year' ? 'year' : (id === 'am-wl-month' ? 'month' : 'day');
+
+  // ── 把指定 item 滾到中央(用測量值,不用算的) ──
+  function scrollItemToCenter(itEl, smooth) {
+    const target = itEl.offsetTop - (col.clientHeight - itEl.offsetHeight) / 2;
+    if (smooth) {
+      col.scrollTo({ top: target, behavior: 'smooth' });
+    } else {
+      const prevSnap = col.style.scrollSnapType;
+      col.style.scrollSnapType = 'none';
+      col.scrollTop = target;
+      requestAnimationFrame(() => {
+        col.scrollTop = target;       // 二次 set 防 webkit 吃掉
+        col.style.scrollSnapType = prevSnap || '';
+      });
+    }
+  }
+
+  // ── 初始置中:poll 直到 layout 完整(clientHeight、scrollHeight 都就緒) ──
+  function center(retries) {
+    void col.offsetHeight;  // force layout
+    const selEl = el.querySelector('.am-wheel-item.selected');
+    const colH = col.clientHeight;
+    const canScroll = col.scrollHeight > colH;
+    if (selEl && colH > 0 && selEl.offsetHeight > 0 && canScroll) {
+      scrollItemToCenter(selEl, false);
+    } else if (retries > 0) {
+      requestAnimationFrame(() => center(retries - 1));
+    }
+  }
+  requestAnimationFrame(() => center(30));
+
+  // ── 滾動時自動把最靠近中央的 item 標記為 selected(iOS 風格) ──
+  // 初始 600ms 內不更新,避免 layout 還沒就緒時的雜訊滾動事件搶位
+  let suspendUpdate = true;
+  setTimeout(() => { suspendUpdate = false; }, 600);
+  let scrollTimer = null;
+  col.addEventListener('scroll', () => {
+    if (suspendUpdate) return;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const center = col.scrollTop + col.clientHeight / 2;
+      let closest = null, minDist = Infinity;
+      el.querySelectorAll('.am-wheel-item').forEach(it => {
+        const ic = it.offsetTop + it.offsetHeight / 2;
+        const d = Math.abs(center - ic);
+        if (d < minDist) { minDist = d; closest = it; }
+      });
+      if (closest) {
+        if (!closest.classList.contains('selected')) {
+          el.querySelectorAll('.am-wheel-item.selected').forEach(x => x.classList.remove('selected'));
+          closest.classList.add('selected');
+        }
+        amState[stateKey] = parseInt(closest.dataset.v, 10);
+      }
+    }, 80);
+  });
+
+  // ── 點 item 直接跳:smooth scroll,scroll handler 會接手更新 selected ──
+  el.querySelectorAll('.am-wheel-item').forEach(it => {
+    it.addEventListener('click', () => {
+      scrollItemToCenter(it, true);
+    });
+  });
+}
+
+// ====== FX ======
+function setFxRate(rate, status) {
+  state.fxRate = rate;
+  document.getElementById('exrate').value = rate.toFixed(2);
+  const fxEl = document.getElementById('fxStatus');
+  if (status === 'live') fxEl.innerHTML = '<span class="live">● 即時匯率</span> ' + new Date().toLocaleString('zh-TW', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  else if (status === 'manual') fxEl.innerHTML = '<span class="failed">● 手動匯率</span>';
+  else if (status === 'failed') fxEl.innerHTML = '<span class="failed">● 抓取失敗,使用預設 32</span>';
+  else fxEl.textContent = '抓取中...';
+  recompute();
+}
+async function fetchRate() {
+  document.getElementById('fxStatus').textContent = '抓取中...';
+  const apis = [
+    {url: 'https://open.er-api.com/v6/latest/USD', getRate: d => d?.rates?.TWD},
+    {url: 'https://api.exchangerate-api.com/v4/latest/USD', getRate: d => d?.rates?.TWD},
+    {url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json', getRate: d => d?.usd?.twd}
+  ];
+  for (const api of apis) {
+    try {
+      const r = await fetch(api.url, {cache: 'no-cache'});
+      if (!r.ok) continue;
+      const d = await r.json();
+      const rate = api.getRate(d);
+      if (rate && rate > 1 && rate < 100) { setFxRate(parseFloat(rate.toFixed(2)), 'live'); return; }
+    } catch (e) {}
+  }
+  setFxRate(state.fxRate, 'failed');
+}
+
+// ====== Mode unit labels ======
+function updateModeUnitLabels() {
+  const c = state.currency === 'TWD' ? '台幣' : '美元';
+  const p = getPeriod();
+  const map = { total: `萬${c}(${p}年總存)`, annual: `萬${c}/年`, retire: `萬${c}/年(退休後)` };
+  document.getElementById('amount-text-unit').textContent = map[state.mode] || map.total;
+  document.getElementById('quick-total-unit').textContent = `萬${c}(${p}年總存)`;
+  document.getElementById('quick-annual-unit').textContent = `萬${c}/年`;
+  document.getElementById('quick-retire-unit').textContent = `萬${c}/年`;
+}
+
+// ====== EVENTS ======
+function bindEvents() {
+  document.getElementById('age-circle-btn').addEventListener('click', openAgeModal);
+  document.getElementById('bonus-lucky-pill').addEventListener('click', () => openBonusModal('lucky'));
+  document.getElementById('bonus-wallet-pill').addEventListener('click', () => openBonusModal('wallet'));
+  document.getElementById('bm-close').addEventListener('click', closeBonusModal);
+  document.getElementById('bm-overlay').addEventListener('click', e => { if (e.target.id === 'bm-overlay') closeBonusModal(); });
+  document.getElementById('am-overlay').addEventListener('click', e => { if (e.target.id === 'am-overlay') closeAgeModal(); });
+  document.querySelectorAll('.am-num').forEach(btn => btn.addEventListener('click', () => amNumKey(btn.dataset.k)));
+  document.querySelectorAll('.am-gender-btn').forEach(btn => btn.addEventListener('click', () => amSetGender(parseInt(btn.dataset.g, 10))));
+  document.getElementById('am-show-wheel').addEventListener('click', () => amSwitchView('wheel'));
+  document.getElementById('am-show-num').addEventListener('click', () => amSwitchView('num'));
+  document.getElementById('am-confirm').addEventListener('click', amConfirm);
+
+  document.querySelectorAll('#genderToggle .pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#genderToggle .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.gender = parseInt(btn.dataset.gender, 10);
+      document.body.classList.toggle('female', state.gender === 2);
+      recompute();
+    });
+  });
+  document.querySelectorAll('#ccyToggle .pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#ccyToggle .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.currency = btn.dataset.c;
+      document.querySelectorAll('.ccyLabel').forEach(el => el.textContent = state.currency === 'TWD' ? '元' : 'USD');
+      updateModeUnitLabels();
+      recompute();
+    });
+  });
+  document.getElementById('exrate').addEventListener('change', e => {
+    const v = parseFloat(e.target.value);
+    if (!isNaN(v) && v >= 1 && v <= 100) setFxRate(v, 'manual');
+  });
+  document.getElementById('fxRefresh').addEventListener('click', fetchRate);
+
+  document.querySelectorAll('#modeRow .mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeRow .mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      state.directSum = null;
+      ['total','annual','retire'].forEach(m => {
+        document.getElementById('quick-row-' + m).style.display = m === state.mode ? '' : 'none';
+      });
+      // 切 mode 時帶該 mode 的預設值
+      const modeCfg = (CONFIG.modes[String(getPeriod())] || []).find(m => m.key === state.mode);
+      if (modeCfg) {
+        state.inputAmount = modeCfg.default;
+        document.getElementById('amount-text').value = modeCfg.default;
+        document.querySelectorAll(`#quick-row-${state.mode} button`).forEach(b => {
+          b.classList.toggle('active', parseFloat(b.dataset.q) === modeCfg.default);
+        });
+      }
+      updateModeUnitLabels();
+      recompute();
+    });
+  });
+
+  document.querySelectorAll('.quick-row').forEach(row => {
+    row.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      row.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const v = parseFloat(btn.dataset.q);
+      state.inputAmount = v;
+      state.directSum = null;
+      document.getElementById('amount-text').value = v;
+      recompute();
+    });
+  });
+  document.getElementById('amount-text').addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    if (!isNaN(v) && v > 0) {
+      state.inputAmount = v;
+      state.directSum = null;
+      document.getElementById('quick-row-' + state.mode).querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      recompute();
+    }
+  });
+
+  function applyDirectSum(newSum) { state.directSum = newSum; recompute(); }
+  document.getElementById('btn-minus').addEventListener('click', () => {
+    if (state.insAge < 0) return openAgeModal();
+    if (state.mode === 'retire') return;  // retire 模式禁用 ±
+    const newSum = Math.max(0.5, +(state.sumInsured - 0.1).toFixed(1));
+    applyDirectSum(newSum);
+  });
+  document.getElementById('btn-plus').addEventListener('click', () => {
+    if (state.insAge < 0) return openAgeModal();
+    if (state.mode === 'retire') return;
+    const newSum = Math.min(maxSumByAge(state.insAge), +(state.sumInsured + 0.1).toFixed(1));
+    applyDirectSum(newSum);
+  });
+  document.getElementById('amt-display').addEventListener('change', e => {
+    const v = parseFloat(e.target.value);
+    if (!isNaN(v) && v >= 0.5) applyDirectSum(v);
+  });
+}
+
+// ====== INIT ======
+function init() {
+  CONFIG = window.PF566_CONFIG;
+  if (!CONFIG) {
+    document.getElementById('empty-msg').textContent = '載入 products/PF566/config.js 失敗（檢查檔案是否存在）';
+    return;
+  }
+  state.prod = getDefaultProd();
+  document.title = `${CONFIG.code} ${CONFIG.name}`;
+  document.getElementById('header-subtitle').textContent = CONFIG.fullName;
+  const variant = getVariant(state.prod);
+  document.getElementById('h-title').textContent = `${CONFIG.code}-${variant.label} ${CONFIG.name}`;
+
+  bindEvents();
+  renderProdRow();
+  updateModeUnitLabels();
+  fetchRate();
+  setTimeout(() => openAgeModal(), 200);
+}
+init();
+</script>
+</body>
+</html>
